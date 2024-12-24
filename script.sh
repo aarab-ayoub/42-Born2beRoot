@@ -4,7 +4,7 @@ arch=$(uname -a)
 
 cpu_physical=$(grep "physical id" /proc/cpuinfo | sort | uniq | wc -l)
 
-cpu_virtual=$(grep "processor" /proc/cpuinfo | wc -l)
+cpu_virtual=$(nproc)
 
 memory=$(free -m | awk '/Mem/ {print $3 "/" $2 "MB   ""("$3/$2*100"%)"}')
 
@@ -12,20 +12,18 @@ disk_total=$(df -m | grep "/dev/" | grep -v "/boot" | awk '{disk_t += $2} END {p
 disk_use=$(df -m | grep "/dev/" | grep -v "/boot" | awk '{disk_u += $3} END {print disk_u}')
 disk_percent=$(df -m | grep "/dev/" | grep -v "/boot" | awk '{disk_u += $3} {disk_t+= $2} END {printf("%d"), disk_u/disk_t*100}')
 
-cpul=$(vmstat 1 2 | tail -1 | awk '{printf $15}')
-cpu_op=$(expr 100 - $cpul)
-cpu_fin=$(printf "%.1f" $cpu_op)
+cpu=$(mpstat | tail -n 1 | awk '{printf "%.1f%%\n", 100 - $13}')
 
 time=$(who -b | awk '{print $3"   " $4}')
 
-lvm=$(if sudo lvscan | grep -q 'ACTIVE'; then echo "yes"; else echo "no"; fi)
+lvm=$(if lsblk | awk '{print $6}' |grep -q 'lvm'; then echo "yes"; else echo "no"; fi)
 
-tcp=$(ss -t state established | wc -l)
+tcp=$(netstat -at | grep ESTABLISHED |wc -l)
 
 Network=$(hostname -I)
 mac=$(ip a | grep "link/ether" | awk '{print $2}')
 
-log=$(who | wc -l)
+log=$(who | awk '{print $1}' | sort -u |wc -l)
 
 sudo=$(grep -c 'COMMAND' /var/log/sudo/sudo.log)
 
@@ -34,7 +32,7 @@ wall "#Architecture: $arch
 	#vCPU : $cpu_virtual
 	#Memory Usage: $memory
 	#Disk Usage: $disk_use/${disk_total} ($disk_percent%)
-	#CPU load: $cpu_fin%
+	#CPU load: $cpu
 	#Last boot:	$time
 	#LVM use: $lvm
 	#Connections TCP : $tcp ESTABLISHED
