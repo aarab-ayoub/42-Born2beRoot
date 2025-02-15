@@ -171,5 +171,5 @@ Broadcast message from root@server (Sun Jan 1 12:00:00 2024):
 ## **Author**
 
 -   **Name**: Aarab Ayoub
--   **Email**: ayaarab@student.1337.ma
+-   **Email**: ayoubaarab570@gmail.com
 -   **GitHub**: [aarab-ayoub](https://github.com/aarab-ayoub)
